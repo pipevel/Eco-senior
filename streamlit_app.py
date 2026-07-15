@@ -48,7 +48,7 @@ st.markdown("""
         font-weight: bold;
     }
     </style>
-""", unsafe_style_allowed=True)
+""", unsafe_allow_html=True) 
 
 # Application Header
 st.title("🌳 Dashboard Integral de Unidades Económicas (Unit Economics)")
