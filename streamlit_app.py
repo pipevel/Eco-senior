@@ -48,7 +48,7 @@ st.markdown("""
         font-weight: bold;
     }
     </style>
-""", unsafe_allow_html=True) 
+""", unsafe_allow_html=True)
 
 # Application Header
 st.title("🌳 Dashboard Integral de Unidades Económicas (Unit Economics)")
@@ -152,7 +152,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 
 # TAB 1: EXECUTIVE RESUME & UNIT ECONOMICS
 with tab1:
-    st.markdown('<h3 class="section-header">Métricas Clave del Negocio (High Level KPIs)</h3>', unsafe_style_allowed=True)
+    st.markdown('<h3 class="section-header">Métricas Clave del Negocio (High Level KPIs)</h3>', unsafe_allow_html=True)
     
     col1, col2, col3, col4 = st.columns(4)
     with col1:
@@ -161,30 +161,30 @@ with tab1:
             <div class="metric-title">MRR (Mensual Reclutado)</div>
             <div class="metric-value">${unit_economics_static["MRR (Mensual)"]:,.2f} COP</div>
         </div>
-        ''', unsafe_style_allowed=True)
+        ''', unsafe_allow_html=True)
     with col2:
         st.markdown(f'''
         <div class="metric-card" style="border-left-color: #1976d2;">
             <div class="metric-title">ARR (Anualizado)</div>
             <div class="metric-value">${unit_economics_static["ARR (Anual)"]:,.2f} COP</div>
         </div>
-        ''', unsafe_style_allowed=True)
+        ''', unsafe_allow_html=True)
     with col3:
         st.markdown(f'''
         <div class="metric-card" style="border-left-color: #d32f2f;">
             <div class="metric-title">Burn Rate de Caja</div>
             <div class="metric-value metric-value-negative">${unit_economics_static["Burn Rate Mensual"]:,.2f} COP</div>
         </div>
-        ''', unsafe_style_allowed=True)
+        ''', unsafe_allow_html=True)
     with col4:
         st.markdown(f'''
         <div class="metric-card" style="border-left-color: #388e3c;">
             <div class="metric-title">LTV/CAC Jóvenes vs Seniors</div>
             <div class="metric-value" style="font-size: 1.5rem;">Jóv: {unit_economics_static["LTV / CAC Jóvenes"]}x | Sen: {unit_economics_static["LTV / CAC Adultos Mayores"]}x</div>
         </div>
-        ''', unsafe_style_allowed=True)
+        ''', unsafe_allow_html=True)
 
-    st.markdown('<h3 class="section-header">Análisis de Clientes & Relación LTV / CAC</h3>', unsafe_style_allowed=True)
+    st.markdown('<h3 class="section-header">Análisis de Clientes & Relación LTV / CAC</h3>', unsafe_allow_html=True)
     col_ltv1, col_ltv2 = st.columns(2)
     
     with col_ltv1:
@@ -218,7 +218,7 @@ with tab1:
 
 # TAB 2: BURN RATE & PROJECTIONS
 with tab2:
-    st.markdown('<h3 class="section-header">Análisis Comparativo: Burn Rate Actual vs Proyectado</h3>', unsafe_style_allowed=True)
+    st.markdown('<h3 class="section-header">Análisis Comparativo: Burn Rate Actual vs Proyectado</h3>', unsafe_allow_html=True)
     
     col_burn1, col_burn2 = st.columns(2)
     
@@ -245,7 +245,7 @@ with tab2:
 
 # TAB 3: OPERATING REVENUE & TRACCION
 with tab3:
-    st.markdown('<h3 class="section-header">Ingresos Operativos Iniciales (Cuotas de Separación)</h3>', unsafe_style_allowed=True)
+    st.markdown('<h3 class="section-header">Ingresos Operativos Iniciales (Cuotas de Separación)</h3>', unsafe_allow_html=True)
     
     col_adv, col_adv_chart = st.columns([1, 1])
     
@@ -263,7 +263,7 @@ with tab3:
 
 # TAB 4: ENVIRONMENTAL METRICS & TOTAL VALUE
 with tab4:
-    st.markdown('<h3 class="section-header">Métricas de Sostenibilidad y Carbono (Calima)</h3>', unsafe_style_allowed=True)
+    st.markdown('<h3 class="section-header">Métricas de Sostenibilidad y Carbono (Calima)</h3>', unsafe_allow_html=True)
     
     col_env1, col_env2 = st.columns(2)
     
@@ -279,5 +279,5 @@ with tab4:
         st.metric("SAM (Serviceable Addressable Market)", f"${unit_economics_static['SAM (Mercado Disponible Servido)']:,.1e} COP")
         st.metric("SOM (Serviceable Obtainable Market)", f"${unit_economics_static['SOM (Mercado Objetivo Capturable)']:,.2f} COP")
 
-    st.markdown('<h3 class="section-header">Análisis de Sensibilidad de Ingresos en Tiempo Real</h3>', unsafe_style_allowed=True)
+    st.markdown('<h3 class="section-header">Análisis de Sensibilidad de Ingresos en Tiempo Real</h3>', unsafe_allow_html=True)
     st.write(f"Con los parámetros ajustados en la barra lateral, el MRR Simulador estimado es de: **${simulated_mrr:,.2f} COP** (frente a los ${unit_economics_static['MRR (Mensual)']:,.2f} COP actuales).")
