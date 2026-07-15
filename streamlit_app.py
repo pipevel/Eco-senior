@@ -59,13 +59,48 @@ st.sidebar.image("https://img.icons8.com/color/96/000000/forest.png", width=90)
 st.sidebar.title("Configuración")
 st.sidebar.markdown("---")
 
-# Interactive sliders/inputs to allow "What-if" analysis for valuation
-st.sidebar.subheader("🎛️ Simulador / Análisis de Sensibilidad")
-active_users_sim = st.sidebar.slider("Usuarios Activos Simulación", min_value=100, max_value=2000, value=684, step=10)
-mrr_senior_sim = st.sidebar.slider("Mensualidad Eco Senior ($)", min_value=5000000, max_value=25000000, value=15000000, step=500000)
-co2_price_sim = st.sidebar.slider("Ingresos Anuales por CO2 ($/50ha)", min_value=1000000, max_value=20000000, value=8000000, step=500000)
+# --- NUEVO SIMULADOR DE ESCENARIOS (Amarrado al supuesto de 32,000M) ---
+st.sidebar.subheader("🎛️ Simulador Financiero (Supuesto 32k Millones)")
 
-# Raw Data values (Hardcoded from image source for exactness)
+# Cantidad de usuarios (Aportantes activos) - Por defecto 16
+active_users_sim = st.sidebar.slider(
+    "Usuarios Activos (Aportantes)", 
+    min_value=1, 
+    max_value=100, 
+    value=16, 
+    step=1,
+    help="Número de usuarios aportando al proyecto de forma mensual. Por defecto: 16."
+)
+
+# Mensualidad simulada por usuario (De 10M a 50M) - Por defecto 15M
+mrr_per_user_sim = st.sidebar.slider(
+    "Aporte Mensual por Usuario ($ COP)", 
+    min_value=10000000,     # 10 Millones
+    max_value=50000000,     # 50 Millones
+    value=15000000,         # 15 Millones por defecto
+    step=1000000,           # Incrementos de 1 Millón
+    format="$%d",
+    help="Monto de la cuota mensual que aporta cada usuario."
+)
+
+# Plazo de aportes - Por defecto 133 meses
+months_sim = st.sidebar.slider(
+    "Plazo del Proyecto (Meses)", 
+    min_value=12, 
+    max_value=240, 
+    value=133, 
+    step=1,
+    help="Tiempo estimado para completar el recaudo total del proyecto."
+)
+
+# --- CÁLCULOS FINANCIEROS SIMULADOS ---
+simulated_mrr = active_users_sim * mrr_per_user_sim
+simulated_arr = simulated_mrr * 12
+total_recaudo_proyectado = simulated_mrr * months_sim
+meta_recaudo = 32000000000.0  # 32,000 Millones COP
+brecha_meta = total_recaudo_proyectado - meta_recaudo
+
+# Raw Data values (Static baseline values)
 unit_economics_static = {
     "Área Vendible (m²)": 48000,
     "Área de Reserva (m²)": 500000,
@@ -139,9 +174,6 @@ ingresos_operativos = {
     "Total Inicial": 320000000.0
 }
 
-# Calculated metrics dynamically using simulating values where applicable
-simulated_mrr = active_users_sim * (unit_economics_static["MRR (Mensual)"] / unit_economics_static["Active Users (Usuarios Activos)"])
-
 # Layout tabs
 tab1, tab2, tab3, tab4 = st.tabs([
     "📊 Resumen Ejecutivo & Unit Economics", 
@@ -152,35 +184,41 @@ tab1, tab2, tab3, tab4 = st.tabs([
 
 # TAB 1: EXECUTIVE RESUME & UNIT ECONOMICS
 with tab1:
-    st.markdown('<h3 class="section-header">Métricas Clave del Negocio (High Level KPIs)</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 class="section-header">Métricas de Escenario Simulado (MRR, ARR & Recaudo)</h3>', unsafe_allow_html=True)
     
+    # Tarjetas con las variables simuladas basadas en la barra lateral
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.markdown(f'''
         <div class="metric-card">
-            <div class="metric-title">MRR (Mensual Reclutado)</div>
-            <div class="metric-value">${unit_economics_static["MRR (Mensual)"]:,.2f} COP</div>
+            <div class="metric-title">MRR Simulado ({active_users_sim} usuarios)</div>
+            <div class="metric-value">${simulated_mrr:,.2f} COP</div>
         </div>
         ''', unsafe_allow_html=True)
     with col2:
         st.markdown(f'''
         <div class="metric-card" style="border-left-color: #1976d2;">
-            <div class="metric-title">ARR (Anualizado)</div>
-            <div class="metric-value">${unit_economics_static["ARR (Anual)"]:,.2f} COP</div>
+            <div class="metric-title">ARR Simulado (Anual)</div>
+            <div class="metric-value">${simulated_arr:,.2f} COP</div>
         </div>
         ''', unsafe_allow_html=True)
     with col3:
+        # Mostramos la proyección final de recaudo
+        color_recaudo = "#2e7d32" if total_recaudo_proyectado >= meta_recaudo else "#c62828"
         st.markdown(f'''
-        <div class="metric-card" style="border-left-color: #d32f2f;">
-            <div class="metric-title">Burn Rate de Caja</div>
-            <div class="metric-value metric-value-negative">${unit_economics_static["Burn Rate Mensual"]:,.2f} COP</div>
+        <div class="metric-card" style="border-left-color: {color_recaudo};">
+            <div class="metric-title">Recaudo Total Proyectado ({months_sim} meses)</div>
+            <div class="metric-value" style="color: {color_recaudo};">${total_recaudo_proyectado:,.2f} COP</div>
         </div>
         ''', unsafe_allow_html=True)
     with col4:
+        # Metas financieras del proyecto
+        estado_meta = "CUBIERTA" if brecha_meta >= 0 else "PENDIENTE"
+        color_meta = "#2e7d32" if brecha_meta >= 0 else "#c62828"
         st.markdown(f'''
-        <div class="metric-card" style="border-left-color: #388e3c;">
-            <div class="metric-title">LTV/CAC Jóvenes vs Seniors</div>
-            <div class="metric-value" style="font-size: 1.5rem;">Jóv: {unit_economics_static["LTV / CAC Jóvenes"]}x | Sen: {unit_economics_static["LTV / CAC Adultos Mayores"]}x</div>
+        <div class="metric-card" style="border-left-color: {color_meta};">
+            <div class="metric-title">Cumplimiento Meta (32k M COP)</div>
+            <div class="metric-value" style="font-size: 1.5rem; color: {color_meta};">{estado_meta} (Brecha: ${brecha_meta:,.2f} COP)</div>
         </div>
         ''', unsafe_allow_html=True)
 
@@ -201,15 +239,19 @@ with tab1:
         st.table(df_jovenes)
         
     with col_ltv2:
-        st.subheader("Segmento Adultos Mayores (Senior)")
+        st.subheader("Segmento Adultos Mayores (Senior) - Simulación Dinámica")
+        # Calculamos el LTV dinámico en base al aporte simulado y el plazo simulado
+        dynamic_ltv_senior = mrr_per_user_sim * months_sim
+        dynamic_ratio_senior = dynamic_ltv_senior / unit_economics_static['CAC Senior']
+        
         df_seniors = pd.DataFrame({
-            "Métrica": ["Costo de Adquisición (CAC)", "Lifetime Value (LTV)", "LTV / CAC Ratio", "Churn Rate", "Mensualidad"],
+            "Métrica": ["Costo de Adquisición (CAC)", "LTV Simulado (Plazo de Proyecto)", "LTV / CAC Ratio Simulado", "Churn Rate", "Mensualidad Simulada"],
             "Valor": [
                 f"${unit_economics_static['CAC Senior']:,.2f} COP",
-                f"${unit_economics_static['LTV Adulto Mayor (10 años)']:,.2f} COP",
-                f"{unit_economics_static['LTV / CAC Adultos Mayores']}x",
+                f"${dynamic_ltv_senior:,.2f} COP",
+                f"{dynamic_ratio_senior:,.2f}x",
                 f"{unit_economics_static['Churn Rate Adultos Mayores']*100}%",
-                f"${unit_economics_static['Mensualidad Eco Senior']:,.2f} COP"
+                f"${mrr_per_user_sim:,.2f} COP"
             ]
         })
         st.table(df_seniors)
@@ -280,4 +322,17 @@ with tab4:
         st.metric("SOM (Serviceable Obtainable Market)", f"${unit_economics_static['SOM (Mercado Objetivo Capturable)']:,.2f} COP")
 
     st.markdown('<h3 class="section-header">Análisis de Sensibilidad de Ingresos en Tiempo Real</h3>', unsafe_allow_html=True)
-    st.write(f"Con los parámetros ajustados en la barra lateral, el MRR Simulador estimado es de: **${simulated_mrr:,.2f} COP** (frente a los ${unit_economics_static['MRR (Mensual)']:,.2f} COP actuales).")
+    
+    # Análisis dinámico interactivo en base a la simulación actual
+    st.markdown(f"""
+    **Análisis de Sensibilidad de la Meta de Recaudo:**
+    * **Aporte Individual Mensual:** `${mrr_per_user_sim:,.2f} COP`
+    * **MRR Total Simulado:** `${simulated_mrr:,.2f} COP`
+    * **ARR Total Simulado (Ingreso Anualizado):** `${simulated_arr:,.2f} COP`
+    * **Recaudo Proyectado a {months_sim} meses:** `${total_recaudo_proyectado:,.2f} COP`
+    
+    """)
+    if total_recaudo_proyectado >= meta_recaudo:
+        st.success(f"🎉 ¡Escenario Viable! Con este aporte mensual, superas la meta de recaudo de 32,000 millones por **${brecha_meta:,.2f} COP**.")
+    else:
+        st.error(f"⚠️ Escenario Insuficiente. Faltan **${abs(brecha_meta):,.2f} COP** para alcanzar la meta de 32,000 millones. Considera aumentar el aporte por usuario o extender el plazo.")
